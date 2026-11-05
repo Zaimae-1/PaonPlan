@@ -117,6 +117,7 @@ export function Kitchen({ children }: { children: React.ReactNode }) {
             <span className="brand-mark"><CookingPot size={24} strokeWidth={1.7}/></span>
             <span><strong>PaonPlan</strong><small>ASISTEN PORSI WARUNG</small></span>
           </Link>
+          <Link className="button side-action" href="/usaha">Buka ruang usaha</Link>
           <div className="nav-group">
             <p className="nav-label">RUANG KERJA</p>
             <nav aria-label="Navigasi utama">
@@ -132,6 +133,15 @@ export function Kitchen({ children }: { children: React.ReactNode }) {
         </aside>
         <div className="main-column">
           <div className="topline"><span><span className="status-dot"/> Dapur harian</span>
+            <button className="text-action" type="button" disabled={!ready || !!error} onClick={() => {
+              const file = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(file);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "paonplan-data-browser.json";
+              link.click();
+              URL.revokeObjectURL(url);
+            }}>Ekspor data browser</button>
             <span className={mode === "demo" ? "pill demo-tag" : "pill plain-tag"}>
               {mode === "demo" ? <FlaskConical size={15}/> : <HardDrive size={15}/>}
               {mode === "demo" ? "Data contoh" : "Data warung"}

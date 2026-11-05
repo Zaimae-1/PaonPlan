@@ -136,7 +136,7 @@ function Stockout({ count }: { count: number }) {
   return <p className="notice stockout"><Info size={18}/><span><strong>{number(count)} hari habis sebelum tutup.</strong> Pada hari itu, jumlah terjual bisa lebih rendah dari jumlah yang sebenarnya ingin dibeli pelanggan.</span></p>;
 }
 
-function ForecastCard({ result, saved = false }: { result: Estimate; saved?: boolean }) {
+export function ForecastCard({ result, saved = false }: { result: Estimate; saved?: boolean }) {
   const comparison = result.comparison;
   return <>
     <div className="estimate">

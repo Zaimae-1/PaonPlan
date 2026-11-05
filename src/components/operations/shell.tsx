@@ -51,7 +51,7 @@ export function OperationsShell({ role, name, section, demo }: { role: Role; nam
         <nav aria-label="Navigasi ruang usaha">{navigation.map(([href, label, Icon]) => <Link key={href} href={href} aria-current={path === href ? "page" : undefined}><Icon size={19}/><span>{label}</span></Link>)}</nav>
       </div>
       <div className="sidebar-note"><span>{name}</span><span className="pill demo-tag">{role === "admin" ? "Admin" : "Kasir"}</span>
-        <Link className="text-action" href="/">Data browser lama</Link></div>
+      </div>
     </aside>
     <div className="main-column">
       <div className="topline ops-top"><span><span className="status-dot"/>Stok & catatan bersama</span>{demo && <span className="pill demo-tag">Data contoh · warung fiktif</span>}

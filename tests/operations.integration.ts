@@ -5,7 +5,7 @@ import test from "node:test";
 import { database, one } from "../src/lib/operations/db.ts";
 import { hashPassword, digest } from "../src/lib/operations/password.ts";
 import { makeDemo } from "../src/lib/data.ts";
-import type { CloseRow, Receipt, Report, Restock } from "../src/lib/operations/types.ts";
+import type { CloseRow, PlanRow, Receipt, Report, Restock } from "../src/lib/operations/types.ts";
 import type { Forecast } from "../src/lib/forecast.ts";
 import { todayWita, shiftDate } from "../src/lib/dates.ts";
 
@@ -18,7 +18,7 @@ const shopIds: string[] = [];
 type TestPayload = {
   id: string; reference: string; change_due: number; kind: string;
   result: Forecast; quote: string; rows: CloseRow[]; transactions: Receipt[]; report: Report;
-  supplies: { items: Restock[] };
+  supplies: { items: Restock[] }; plans: PlanRow[]; latest: Receipt[];
 };
 type HttpResult = { status: number; data: TestPayload };
 type Session = { call: (body: Record<string, unknown>) => Promise<HttpResult>; get: (path: string) => Promise<HttpResult>; cookie: string };
@@ -95,6 +95,7 @@ test("shared PostgreSQL operations through authenticated HTTP entry points", { t
     await t.test("cashier cannot read admin views, mutate prices or cross tenant boundaries", async () => {
       assert.equal((await cashier.get("/api/usaha?view=report")).status, 403);
       assert.equal((await cashier.get("/api/usaha?view=settings")).status, 403);
+      assert.equal((await cashier.get("/api/usaha?view=home")).status, 403);
       assert.equal((await cashier.call({ action: "settings", name: "X", taxBps: 0, capacity: 4 })).status, 403);
       assert.equal((await admin.call({ action: "adjust", type: "menu", id: f.foreign, delta: 1, reason: "Uji batas warung" })).status, 409);
       const unauth = await fetch(origin + "/api/usaha?view=stock");
@@ -217,6 +218,11 @@ test("shared PostgreSQL operations through authenticated HTTP entry points", { t
       assert.equal(records.rowCount, 1); assert.equal(records.rows[0].source, "pos"); assert.equal(records.rows[0].sold, 4);
       const saved = await admin.call({ action: "plan", menuId: f.main, date: tomorrow, event: false, portions: 35, quote: after.data.quote });
       assert.equal(saved.status, 200);
+      const home = await admin.get("/api/usaha?view=home");
+      assert.equal(home.status, 200);
+      assert.equal(home.data.plans.find((row) => row.menu_id === f.main)?.portions, 35);
+      assert.ok(home.data.latest.length > 0 && home.data.latest.length <= 3);
+      assert.ok(home.data.latest.every((row) => row.items.every((item) => [f.main, f.last].includes(item.id))));
       await admin.call({ action: "adjust", type: "ingredient", id: f.ingredient, delta: -100, reason: "Skenario stok 40g" });
       const plan = await admin.get("/api/usaha?view=plan");
       const pepperRow = plan.data.supplies.items.find((item) => item.id === f.ingredient);

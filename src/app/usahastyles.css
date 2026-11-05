@@ -119,3 +119,4 @@
 
 .ops-figure { grid-template-columns: minmax(0,1fr); }
 .ops-figure > * { min-width: 0; overflow-wrap: anywhere; }
+.home-grid > .ops-list { align-content: start; }

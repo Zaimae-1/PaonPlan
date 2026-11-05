@@ -90,7 +90,7 @@ export function useKitchen() {
 }
 
 const links = [
-  { href: "/", label: "Beranda", icon: House },
+  { href: "/data-browser", label: "Arsip browser", icon: House },
   { href: "/rencana", label: "Rencana Porsi", icon: CalendarDays },
   { href: "/riwayat", label: "Riwayat", icon: ClipboardList },
 ];
@@ -113,13 +113,13 @@ export function Kitchen({ children }: { children: React.ReactNode }) {
       <a className="skip" href="#konten">Lewati ke konten</a>
       <div className="shell">
         <aside className="sidebar">
-          <Link href="/" className="brand">
+          <Link href="/data-browser" className="brand">
             <span className="brand-mark"><CookingPot size={24} strokeWidth={1.7}/></span>
             <span><strong>PaonPlan</strong><small>ASISTEN PORSI WARUNG</small></span>
           </Link>
           <Link className="button side-action" href="/usaha">Buka ruang usaha</Link>
           <div className="nav-group">
-            <p className="nav-label">RUANG KERJA</p>
+            <p className="nav-label">ARSIP DATA BROWSER</p>
             <nav aria-label="Navigasi utama">
               {links.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-current={href === path ? "page" : undefined}>
                 <Icon size={19} strokeWidth={1.8}/><span>{label}</span>
@@ -132,7 +132,7 @@ export function Kitchen({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
         <div className="main-column">
-          <div className="topline"><span><span className="status-dot"/> Dapur harian</span>
+          <div className="topline"><span><span className="status-dot"/> Arsip browser versi awal</span>
             <button className="text-action" type="button" disabled={!ready || !!error} onClick={() => {
               const file = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
               const url = URL.createObjectURL(file);

@@ -120,7 +120,7 @@ export function PlanScreen({ requestedMenu, requestedDate }: { requestedMenu?: s
               {saveError && <p className="field-error" id="save-error" role="alert">{saveError}</p>}
             </div>
             <button type="submit" className="button primary" disabled={busy}>{saving ? "Menyimpan…" : "Simpan rencana"}<ArrowRight size={18}/></button>
-            {message && <p className="success" role="status"><CircleCheck size={19}/>{message} <Link href="/">Lihat Beranda</Link></p>}
+            {message && <p className="success" role="status"><CircleCheck size={19}/>{message} <Link href="/data-browser">Lihat arsip</Link></p>}
           </form>
         </> : stored ? <>
           <div className="saved-strip"><CircleCheck size={20}/><p><strong>{number(stored.portions)} porsi direncanakan</strong><br/><small>{fullDate(date)} · Rencana tersimpan</small></p></div>

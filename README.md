@@ -117,7 +117,9 @@ Laporan membedakan penjualan sebelum pajak, pajak, pembayaran tunai dan QRIS, se
 
 ## Data browser versi awal
 
-Rute awal `/`, `/rencana`, `/penjualan/catat`, dan `/riwayat` tetap membuka data lokal dengan kunci yang sama. Dari header versi browser, pilih **Ekspor data browser** untuk mengunduh catatan, menu, dan rencana sebagai JSON.
+Alamat utama `/` mengarah ke `/usaha`. Setelah masuk, Admin membuka ringkasan dengan desain **Besok masak berapa?**, rencana besok, penjualan terakhir, dan data operasional bersama. Kasir diarahkan ke layar kasir.
+
+Arsip versi awal tersedia di `/data-browser` dan dapat dibuka dari **Warung & Akun → Pulihkan data browser versi awal** atau tautan pemulihan pada halaman masuk. Arsip, `/rencana`, `/penjualan/catat`, dan `/riwayat` membaca data lokal dengan kunci yang sama. Pilih **Ekspor data browser** untuk mengunduh catatan, menu, dan rencana sebagai JSON.
 
 Pemindahan otomatis ke PostgreSQL belum tersedia. Ekspor dahulu dari perangkat, browser, dan alamat situs yang menyimpan data tersebut. Kemudian masukkan menu dan riwayat yang diperlukan melalui formulir riwayat manual di ruang usaha. Data contoh browser dan data usaha browser tetap terpisah. Membuka alamat berbeda, misalnya localhost dan 127.0.0.1, menggunakan penyimpanan browser yang berbeda.
 
@@ -139,7 +141,7 @@ Bukti dari browser tersedia untuk Admin, Kasir, Rencana Porsi, Tutup Hari, dan p
 
 | Bukti | Berkas |
 | --- | --- |
-| Beranda Admin | [Screenshot](output/playwright/admin-ringkasan.png) |
+| Beranda Admin | [Desktop](output/playwright/admin-ringkasan.png) · [HP 360 px](output/playwright/admin-ringkasan-360.png) |
 | Kasir tablet | [Screenshot](output/playwright/kasir-tablet.png) |
 | Rencana Porsi bersama | [Screenshot](output/playwright/rencana-usaha.png) |
 | Tutup Hari | [Screenshot](output/playwright/tutup-hari.png) |

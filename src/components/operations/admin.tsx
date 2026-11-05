@@ -1,28 +1,62 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
-import { ArrowRight, CalendarCheck, Download, ShoppingBasket, TriangleAlert } from "lucide-react";
-import { number } from "@/lib/dates";
-import { rupiah, type Account, type Expense, type MenuItem, type Receipt, type Report, type Restock } from "@/lib/operations/types";
+import { ArrowRight, CalendarCheck, CalendarDays, ClipboardList, Download, Leaf, Plus, ShoppingBasket, TriangleAlert } from "lucide-react";
+import { fullDate, number } from "@/lib/dates";
+import { receiptCode, rupiah, witaTime, type Account, type Expense, type MenuItem, type PlanRow, type Receipt, type Report, type Restock } from "@/lib/operations/types";
+import { Empty } from "@/components/ui";
 import { DateFilter, ReceiptList } from "./cashier";
 import { api, Check, Figure, Input, Loading, num, on, OpHeading, Refresh, request, Select, ShopLink, showDate,
   str, SummaryFigures, Supplies, TaskForm, useView, type BaseView, type Change } from "./shared";
 
 type HomeView = BaseView & { report: Report; low: MenuItem[]; supplies: { items: Restock[]; incomplete: string[] };
-  counts: { orders: number; bookings: number; closed: boolean } };
+  counts: { orders: number; bookings: number; closed: boolean }; plans: PlanRow[]; latest: Receipt[] };
 
 export function AdminHome() {
   const view = useView<HomeView>(api + "?view=home");
   if (!view.data) return <Loading error={view.error} retry={view.refresh}/>;
   const data = view.data;
   return <div className="ops-stack">
-    <section className="public-banner">
-      <p className="eyebrow">RUANG KERJA PEMILIK</p><h1>Bagaimana dapur hari ini?</h1>
-      <p>{showDate(data.today)} · WITA. Lihat penjualan, cek stok, dan siapkan porsi untuk besok.</p>
-      <div className="actions"><Link className="button primary" href="/usaha/tutup-hari"><CalendarCheck size={18}/>Tutup Hari</Link>
-        <Link className="button secondary" href="/usaha/rencana">Rencana Porsi <ArrowRight size={17}/></Link></div>
-    </section>
+    <header className="hero">
+      <div className="hero-copy">
+        <p className="eyebrow"><Leaf size={16}/> RENCANA DAPUR HARIAN</p>
+        <h1>Besok masak<br className="hero-break"/> berapa?</h1>
+        <p>Tahu berapa porsi sebelum mulai masak. Rencanakan porsi dari catatan penjualan warung Anda.</p>
+        <div className="actions">
+          <Link className="button primary" href="/usaha/rencana">Buat rencana besok <ArrowRight size={19}/></Link>
+          <Link className="button hero-secondary" href="/usaha/kasir"><Plus size={18}/>Catat penjualan</Link>
+        </div>
+      </div>
+      <Image className="hero-art" src="/dapur.svg" alt="" width={455} height={290} priority/>
+    </header>
+    <div className="home-grid">
+      <section className="panel ops-list">
+        <div className="panel-head"><span className="icon-chip"><CalendarDays size={21}/></span>
+          <div><h2>Rencana besok</h2><p>{fullDate(data.tomorrow)} · WITA</p></div></div>
+        {data.plans.length ? <div className="rows">{data.plans.map((plan) => <Link key={plan.menu_id} className="data-row plan-row"
+          href={"/usaha/rencana?" + new URLSearchParams({ menu: plan.menu_id, tanggal: plan.date })}>
+          <span><strong>{plan.name}</strong><small>Rencana tersimpan</small></span>
+          <span className="row-figure"><strong>{number(plan.portions)}</strong> porsi <ArrowRight size={17}/></span>
+        </Link>)}</div> : <Empty title="Belum ada rencana">Simpan jumlah porsi untuk besok agar bisa dilihat di sini.</Empty>}
+      </section>
+      <section className="panel ops-list">
+        <div className="panel-head"><span className="icon-chip chip-1"><ClipboardList size={21}/></span>
+          <div><h2>Penjualan terakhir</h2><p>Transaksi selesai yang tercatat di kasir</p></div></div>
+        {data.latest.length ? <>
+          <div className="rows">{data.latest.map((receipt) => <article key={receipt.id} className="data-row">
+            <span><strong>{receipt.items.slice(0, 2).map((item) => `${item.quantity} × ${item.name}`).join(" · ")}
+              {receipt.items.length > 2 && ` +${receipt.items.length - 2} menu lainnya`}</strong>
+              <small>{witaTime(receipt.created_at)} · {receiptCode(receipt.id)}</small></span>
+            <span className="row-figure"><strong>{rupiah(receipt.total)}</strong></span>
+          </article>)}</div>
+          <Link className="text-action" href="/usaha/penjualan">Lihat transaksi <ArrowRight size={17}/></Link>
+        </> : <Empty title="Belum ada penjualan">Transaksi yang selesai di kasir akan muncul di sini.</Empty>}
+      </section>
+    </div>
+    <div className="ops-intro"><div><h2>Ringkasan hari ini</h2><p className="hint">{showDate(data.today)} · WITA</p></div>
+      <Link className="button secondary" href="/usaha/tutup-hari"><CalendarCheck size={18}/>Tutup Hari</Link></div>
     <SummaryFigures report={data.report}/>
     <div className="ops-grid">
       <section className="panel ops-list"><div className="ops-panel-heading"><p className="eyebrow">PERLU PERHATIAN</p><h2>Antrean & stok hari ini</h2></div>
@@ -115,6 +149,10 @@ export function Settings() {
           <Input name="capacity" label="Kapasitas orang per slot 30 menit" type="number" min={0} max={500} defaultValue={view.data.capacity}/>
         </TaskForm>
         <ShopLink slug={view.data.slug}/>
+        <details className="ops-disclosure"><summary>Pulihkan data browser versi awal</summary>
+          <p className="hint">Buka arsip pada perangkat dan browser yang menyimpan catatan lama untuk mengekspor datanya.</p>
+          <Link className="text-action" href="/data-browser">Buka arsip dan ekspor data</Link>
+        </details>
       </section>
       <section className="panel ops-list"><h2>Akun kasir</h2>
         {view.data.accounts.map((account) => <details className="ops-disclosure" key={account.id}>

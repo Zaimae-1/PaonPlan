@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, CalendarCheck, CircleAlert, Sparkles } from "lucide-react";
 import { ForecastCard } from "@/components/plan";
-import { number, shiftDate } from "@/lib/dates";
+import { number, shiftDate, validDate } from "@/lib/dates";
 import type { Estimate, Forecast } from "@/lib/forecast";
 import { rupiah, type Closing, type CloseRow, type Daily, type MenuItem, type PlanRow, type Report, type Restock } from "@/lib/operations/types";
 import { api, Check, Figure, Input, Loading, num, on, OpHeading, optionalNum, Refresh, request, Select, showDate, str, SummaryFigures,
@@ -15,16 +16,23 @@ type ForecastResult = { result: Forecast; quote: string };
 
 export function Planning() {
   const view = useView<PlanView>(api + "?view=plan");
+  const params = useSearchParams();
+  const requestedMenu = params.get("menu");
+  const requestedDate = params.get("tanggal");
   return <div className="ops-stack">
     <OpHeading tag="SEBELUM MASAK" title="Rencana Porsi" description="Gunakan rekap kasir dan riwayat manual untuk menentukan porsi serta bahan yang perlu disiapkan."
       aside={<Link className="button secondary" href="/usaha/tutup-hari">Buka Tutup Hari <ArrowRight size={17}/></Link>}/>
-    {view.data ? <PlanContent data={view.data} refresh={view.refresh}/> : <Loading error={view.error} retry={view.refresh}/>}
+    {view.data ? <PlanContent key={JSON.stringify([requestedMenu, requestedDate])} data={view.data} refresh={view.refresh}
+      requestedMenu={requestedMenu} requestedDate={requestedDate}/> : <Loading error={view.error} retry={view.refresh}/>}
   </div>;
 }
 
-function PlanContent({ data, refresh }: { data: PlanView; refresh: Change }) {
-  const [menu, setMenu] = useState(data.menus.find((item) => item.name === "Nasi Ayam")?.id ?? data.menus[0]?.id ?? "");
-  const [date, setDate] = useState(data.tomorrow);
+function PlanContent({ data, refresh, requestedMenu, requestedDate }: {
+  data: PlanView; refresh: Change; requestedMenu: string | null; requestedDate: string | null;
+}) {
+  const [menu, setMenu] = useState(data.menus.find((item) => item.id === requestedMenu)?.id
+    ?? data.menus.find((item) => item.name === "Nasi Ayam")?.id ?? data.menus[0]?.id ?? "");
+  const [date, setDate] = useState(validDate(requestedDate) ? requestedDate : data.tomorrow);
   const [result, setResult] = useState<(ForecastResult & { event: boolean }) | null>(null);
   const stored = data.plans.find((plan) => plan.menu_id === menu && plan.date === date);
   const active = result?.result;

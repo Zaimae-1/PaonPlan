@@ -194,7 +194,7 @@ export function Login() {
     <div className="login-grid">
       <header className="login-hero"><p className="eyebrow">PAONPLAN · RUANG USAHA</p><h1>Tahu berapa porsi sebelum mulai masak.</h1>
         <p>Hubungkan penjualan kasir, stok dapur, dan rencana porsi besok.</p>
-        <Link className="text-action" href="/">Buka PaonPlan versi browser <ArrowRight size={17}/></Link>
+        <Link className="text-action" href="/data-browser">Pulihkan data browser lama <ArrowRight size={17}/></Link>
       </header>
       <section className="panel">
         <div className="ops-panel-heading"><h2>Masuk ke ruang usaha</h2><p>Untuk Admin dan Kasir</p></div>

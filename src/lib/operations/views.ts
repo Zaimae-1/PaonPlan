@@ -1,7 +1,7 @@
 import { shiftDate, todayWita } from "../dates";
 import { database, one, requireCondition, rows } from "./db";
-import { closeData, planData, receipts, reportData, restock, summary } from "./reporting";
-import type { Account, Actor, Booking, CustomerOrder, Ingredient, MenuItem, Recipe, Shop } from "./types";
+import { closeData, planData, receiptFields, receipts, reportData, restock, summary } from "./reporting";
+import type { Account, Actor, Booking, CustomerOrder, Ingredient, MenuItem, PlanRow, Receipt, Recipe, Shop } from "./types";
 import { date, period } from "./validation";
 
 export async function readView(actor: Actor, params: URLSearchParams) {
@@ -31,7 +31,7 @@ export async function readView(actor: Actor, params: URLSearchParams) {
       return { ...base, orders, bookings, capacity: actor.role === "admin" ? shop.slot_capacity : null };
     }
     case "home": {
-      const [report, low, supplies, counts] = await Promise.all([
+      const [report, low, supplies, counts, plans, latest] = await Promise.all([
         summary(db, shop.id, today, today),
         rows<MenuItem>(db, "SELECT id,name,stock FROM menus WHERE shop_id=$1 AND active AND stock<=5 ORDER BY stock,name", [shop.id]),
         restock(db, shop.id, tomorrow),
@@ -39,8 +39,12 @@ export async function readView(actor: Actor, params: URLSearchParams) {
           (SELECT count(*) FROM orders WHERE shop_id=$1 AND status='pending') orders,
           (SELECT count(*) FROM bookings WHERE shop_id=$1 AND status='pending') bookings,
           EXISTS(SELECT 1 FROM day_closings WHERE shop_id=$1 AND date=$2) closed`, [shop.id, today]),
+        rows<PlanRow>(db, `SELECT p.menu_id,m.name,p.date,p.portions,p.event,p.forecast FROM production_plans p
+          JOIN menus m ON m.id=p.menu_id WHERE p.shop_id=$1 AND p.date=$2 ORDER BY m.name`, [shop.id, tomorrow]),
+        rows<Receipt>(db, `SELECT ${receiptFields} FROM transactions WHERE shop_id=$1 AND voided_at IS NULL
+          ORDER BY created_at DESC,id DESC LIMIT 3`, [shop.id]),
       ]);
-      return { ...base, report, low, supplies, counts };
+      return { ...base, report, low, supplies, counts, plans, latest };
     }
     case "stock": {
       const [catalog, ingredients, recipes, supplies, movements] = await Promise.all([

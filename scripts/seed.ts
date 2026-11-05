@@ -3,6 +3,7 @@ import { makeDemo } from "../src/lib/data.ts";
 import { todayWita, shiftDate } from "../src/lib/dates.ts";
 import { hashPassword } from "../src/lib/operations/password.ts";
 import { email, password, slug } from "../src/lib/operations/validation.ts";
+import { demoMenus } from "../src/lib/demo-menus.ts";
 
 const demo = process.argv.includes("--demo");
 const ownerEmail = demo ? "admin@paonplan.test" : email.parse(process.env.OWNER_EMAIL);
@@ -18,6 +19,16 @@ try {
     const shop = await one<{ id: string }>(db, `INSERT INTO shops(slug,name,demo,slot_capacity) VALUES ($1,$2,$3,$4)
       ON CONFLICT(slug) DO NOTHING RETURNING id`, [shopSlug, name, demo, demo ? 6 : 12]);
     if (!shop) {
+      if (demo) {
+        const existing = await one<{ id: string; demo: boolean }>(db, "SELECT id,demo FROM shops WHERE slug=$1 FOR UPDATE", [shopSlug]);
+        if (!existing?.demo) throw new Error("Slug demo sudah digunakan oleh warung usaha.");
+        for (const menu of demoMenus) {
+          await db.query(`INSERT INTO menus(shop_id,name,category,price,stock,recipe_complete)
+            SELECT $1,$2,$3,$4,$5,$6 WHERE NOT EXISTS (SELECT 1 FROM menus WHERE shop_id=$1 AND name=$2)`,
+            [existing.id, menu.name, menu.category, menu.price, menu.stock, menu.recipeComplete]);
+        }
+        console.log("Pilihan menu demo Bali ditambahkan jika belum ada.");
+      }
       console.log("Warung sudah tersedia. Data dan akun yang ada dipertahankan.");
       return;
     }
@@ -26,13 +37,11 @@ try {
     if (!demo) return;
     await db.query("INSERT INTO accounts(shop_id,email,name,password_hash,role) VALUES ($1,$2,$3,$4,'cashier')",
       [shop.id, "kasir@paonplan.test", "Made · Kasir", hash]);
-    const names = [["Nasi Ayam", "Nasi", 25000, 14, true], ["Sate Lilit", "Lauk", 18000, 8, false],
-      ["Es Jeruk", "Minuman", 10000, 12, false], ["Nasi Jinggo", "Nasi", 12000, 10, false]];
     const menuIds = new Map<string, string>();
-    for (const [menu, category, price, stock, complete] of names) {
+    for (const menu of demoMenus) {
       const entry = await one<{ id: string }>(db, `INSERT INTO menus(shop_id,name,category,price,stock,recipe_complete)
-        VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`, [shop.id, menu, category, price, stock, complete]);
-      menuIds.set(String(menu), entry!.id);
+        VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`, [shop.id, menu.name, menu.category, menu.price, menu.stock, menu.recipeComplete]);
+      menuIds.set(menu.name, entry!.id);
     }
     const history = makeDemo();
     const sampleIds = new Map([["nasi-ayam","Nasi Ayam"],["nasi-jinggo","Nasi Jinggo"],["sate-lilit","Sate Lilit"]]);

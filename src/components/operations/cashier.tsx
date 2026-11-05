@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowDown, Banknote, Minus, Plus, Printer, QrCode, ShoppingBasket, Trash2 } from "lucide-react";
+import { ArrowDown, Banknote, Minus, Plus, Printer, QrCode, Search, ShoppingBasket, Trash2 } from "lucide-react";
+import { CategoryIcon, MenuArt } from "./menu-art";
 import { number, todayWita } from "@/lib/dates";
 import { bill, receiptCode, rupiah, witaTime, type Bill, type Item, type Payment, type PublicMenu, type Receipt } from "@/lib/operations/types";
 import { api, attemptStorage, bodyHash, Input, Loading, OpHeading, Refresh, request, str, TaskForm, TaskStatus, useTask, useView, type BaseView } from "./shared";
@@ -36,21 +37,28 @@ export function Catalog({ menus, cart, add, busy }: { menus: PublicMenu[]; cart:
   const categories = [...new Set(menus.map((menu) => menu.category))];
   const shown = menus.filter((menu) => (!category || menu.category === category)
     && menu.name.toLocaleLowerCase("id-ID").includes(query.trim().toLocaleLowerCase("id-ID")));
-  return <section className="panel ops-list" aria-label="Katalog menu">
-    <div className="ops-panel-heading"><p className="eyebrow">KATALOG WARUNG</p><h2>Pilih menu</h2></div>
-    <div className="form-pair">
-      <Input label="Cari menu" name="search" type="search" required={false} value={query} onChange={(e) => setQuery(e.target.value)}/>
-      <label className="field"><span>Kategori</span><select value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="">Semua kategori</option>{categories.map((name) => <option key={name}>{name}</option>)}
-      </select></label>
+  return <section className="panel ops-list catalog-panel" aria-label="Katalog menu">
+    <div className="catalog-heading"><div className="ops-panel-heading"><p className="eyebrow">DARI DAPUR WARUNG</p><h2>Pilih yang ingin dinikmati.</h2></div>
+      <span className="catalog-count">{number(shown.length)} pilihan menu</span></div>
+    <label className="field catalog-search"><span>Cari menu</span><span className="search-input"><Search size={20}/>
+      <input name="search" type="search" placeholder="Lagi ingin makan atau minum apa?" value={query} onChange={(e) => setQuery(e.target.value)}/>
+    </span></label>
+    <div className="category-tabs" role="group" aria-label="Kategori menu">
+      <button type="button" aria-pressed={!category} onClick={() => setCategory("")}><CategoryIcon name="Semua"/>Semua <span>{menus.length}</span></button>
+      {categories.map((name) => <button type="button" key={name} aria-pressed={category === name} onClick={() => setCategory(name)}>
+        <CategoryIcon name={name}/>{name}<span>{menus.filter((menu) => menu.category === name).length}</span>
+      </button>)}
     </div>
     {!shown.length && <p>Belum ada menu yang cocok.</p>}
-    <div className="menu-grid">{shown.map((menu) => <button className="menu-tile" key={menu.id} type="button"
+    <div className="menu-grid">{shown.map((menu) => <button className={"menu-tile" + (cart[menu.id] ? " is-selected" : "")} key={menu.id} type="button"
       disabled={busy || menu.stock <= (cart[menu.id] ?? 0)} onClick={() => add(menu.id)}
       aria-label={`${menu.name}, ${rupiah(menu.price)}, ${menu.stock} porsi tersedia`}>
-      <span className="pill plain-tag">{menu.category}</span><strong>{menu.name}</strong>
-      <span className="tile-price">{rupiah(menu.price)}</span>
-      <span className="hint">{menu.stock > 0 ? number(menu.stock) + " porsi tersedia" : "Porsi habis"}</span>
+      <span className="menu-tile-art"><MenuArt name={menu.name} category={menu.category}/><span className="menu-category">{menu.category}</span>
+        {!!cart[menu.id] && <span className="tile-quantity">{cart[menu.id]} di keranjang</span>}</span>
+      <span className="menu-tile-content"><strong>{menu.name}</strong>
+        <span className="menu-stock"><span className={menu.stock > 0 ? "status-dot" : "status-dot sold-dot"}/>{menu.stock > 0 ? number(menu.stock) + " porsi tersedia" : "Porsi habis"}</span>
+        <span className="tile-bottom"><span className="tile-price">{rupiah(menu.price)}</span><span className="tile-add"><Plus size={19}/></span></span>
+      </span>
     </button>)}</div>
   </section>;
 }
@@ -65,11 +73,14 @@ export function Totals({ quote }: { quote: Pick<Bill, "subtotal" | "tax" | "tota
 
 export function Basket({ state, children, busy }: { state: ReturnType<typeof useCart>; children?: React.ReactNode; busy?: boolean }) {
   return <section className="panel basket ops-list" id="keranjang" tabIndex={-1}>
-    <div className="ops-panel-heading"><p className="eyebrow">RINCIAN PESANAN</p><h2>Keranjang</h2></div>
+    <div className="basket-heading"><span className="basket-symbol"><ShoppingBasket size={23}/></span>
+      <div className="ops-panel-heading"><p className="eyebrow">RINCIAN PESANAN</p><h2>Keranjang Anda</h2></div>
+      <span className="basket-count">{state.items.reduce((sum, item) => sum + item.quantity, 0)}</span></div>
     {state.items.length ? <div>{state.items.map((item) => {
       const line = state.quoted.items.find((entry) => entry.id === item.id);
       return <article className="basket-item" key={item.id}>
-        <div><strong>{line?.name ?? "Menu sudah tidak tersedia"}</strong><p className="hint">{line ? rupiah(line.price * item.quantity) : "Hapus dari keranjang."}</p></div>
+        <div className="basket-menu"><MenuArt name={line?.name ?? "Menu"} compact/>
+          <div><strong>{line?.name ?? "Menu sudah tidak tersedia"}</strong><p className="hint">{line ? rupiah(line.price * item.quantity) : "Hapus dari keranjang."}</p></div></div>
         <div className="counter">
           <button className="button secondary" type="button" disabled={busy} onClick={() => state.change(item.id, -1)} aria-label={"Kurangi " + (line?.name ?? "menu")}><Minus size={16}/></button>
           <span>{item.quantity}</span>
@@ -77,7 +88,7 @@ export function Basket({ state, children, busy }: { state: ReturnType<typeof use
           <button className="button secondary" type="button" disabled={busy} onClick={() => state.change(item.id, -item.quantity)} aria-label={"Hapus " + (line?.name ?? "menu")}><Trash2 size={16}/></button>
         </div>
       </article>;
-    })}</div> : <p>Ketuk menu untuk menambahkan porsi.</p>}
+    })}</div> : <div className="basket-empty"><ShoppingBasket size={34} strokeWidth={1.3}/><strong>Masih kosong, nih.</strong><p>Ketuk menu untuk menambahkan porsi.</p></div>}
     <Totals quote={state.quoted}/>
     {state.unavailable && <p role="alert" className="error-box">Stok atau menu berubah. Sesuaikan isi keranjang.</p>}
     {children}

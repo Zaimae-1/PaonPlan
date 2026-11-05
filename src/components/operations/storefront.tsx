@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CalendarDays, CookingPot, ExternalLink, ShoppingBasket } from "lucide-react";
-import { bookingLabels, orderLabels, slots, type PublicMenu, type PublicStatus } from "@/lib/operations/types";
+import { ArrowRight, CalendarDays, CookingPot, ExternalLink, Leaf } from "lucide-react";
+import { bookingLabels, orderLabels, rupiah, slots, type PublicMenu, type PublicStatus } from "@/lib/operations/types";
+import { MenuArt } from "./menu-art";
 import { Basket, BasketJump, Catalog, Totals, useAttempt, useCart } from "./cashier";
 import { Input, Loading, num, OpHeading, Refresh, request, Select, showDate, str, TaskForm, TaskStatus, useTask, useView } from "./shared";
 import { shiftDate, todayWita } from "@/lib/dates";
@@ -20,6 +21,12 @@ export function Storefront({ slug, reference }: { slug: string; reference?: stri
   const attempt = useAttempt("public:" + slug);
   const [sending, setSending] = useState(false);
   const today = todayWita();
+  const featured = view.data?.menus.find((menu) => /betutu/i.test(menu.name) && menu.stock > 0)
+    ?? view.data?.menus.find((menu) => menu.stock > 0) ?? view.data?.menus[0];
+  function chooseTab(next: typeof tab) {
+    setTab(next);
+    requestAnimationFrame(() => document.getElementById("pilih-menu")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
   const success = (value: { reference: string }) => {
     setSent(value.reference);
     setRef(value.reference);
@@ -29,21 +36,38 @@ export function Storefront({ slug, reference }: { slug: string; reference?: stri
     attempt.clear();
     window.scrollTo({ top: 0, behavior: "instant" });
   };
-  return <main className="public-wrap ops-stack">
-    <header className="ops-intro">
-      <Link className="login-brand" href={"/warung/" + slug}><CookingPot size={27}/>PaonPlan</Link>
-      <Link className="text-action" href="/usaha">Masuk staf <ExternalLink size={16}/></Link>
+  return <main className="storefront">
+    <header className="shop-header">
+      <div className="shop-header-inner">
+        <Link className="shop-brand" href={"/warung/" + slug}><span className="shop-brand-mark"><CookingPot size={25}/></span>
+          <span><strong>PAONPLAN</strong><small>{view.data?.name ?? "DARI DAPUR WARUNG"}</small></span></Link>
+        <nav className="shop-navigation" aria-label="Pilihan pelanggan">
+          <button aria-pressed={tab === "order"} onClick={() => chooseTab("order")} type="button">Menu kami</button>
+          <button aria-pressed={tab === "booking"} onClick={() => chooseTab("booking")} type="button">Booking meja</button>
+          <button aria-pressed={tab === "status"} onClick={() => chooseTab("status")} type="button">Cek status</button>
+        </nav>
+        <Link className="shop-staff" href="/usaha">Masuk staf <ExternalLink size={15}/></Link>
+      </div>
     </header>
     {view.data ? <>
+      {tab === "order" && <section className="shop-hero">
+        <div className="shop-hero-inner"><div className="shop-hero-copy">
+          <p className="eyebrow"><Leaf size={17}/> DARI DAPUR, UNTUK MEJA ANDA</p>
+          <h1>Rasa yang akrab.<br/><em>Hangat di setiap porsi.</em></h1>
+          <p className="shop-introduction">Selamat datang di {view.data.name}. Pilih sajian kesukaan, pesan untuk diambil, atau siapkan meja untuk makan bersama.</p>
+          <div className="actions"><button className="button primary" type="button" onClick={() => chooseTab("order")}>Pesan makanan <ArrowRight size={19}/></button>
+            <button className="button hero-secondary" type="button" onClick={() => chooseTab("booking")}><CalendarDays size={18}/>Booking meja</button></div>
+          <p className="shop-hero-note"><span>✦ Pesan dari mana saja</span><span>Ambil sesuai jadwal WITA</span></p>
+        </div>
+        {featured && <div className="shop-featured"><div className="shop-stamp">DARI DAPUR<br/><strong>{view.data.name}</strong></div>
+          <MenuArt name={featured.name} category={featured.category}/>
+          <div className="shop-featured-caption"><div><small>PILIHAN DI DAPUR</small><h2>{featured.name}</h2></div><strong>{rupiah(featured.price)}</strong></div>
+        </div>}
+        </div>
+      </section>}
+      <div className="shop-content ops-stack" id="pilih-menu">
       {view.data.demo && <p className="mode-banner"><strong>Data contoh</strong>Warung fiktif untuk mencoba pesanan dan booking.</p>}
-      <section className="public-banner"><p className="eyebrow">DARI DAPUR WARUNG</p><h1>{view.data.name}</h1>
-        <p>Pilih makanan untuk diambil di warung, atau kirim permintaan meja. Staf akan mengonfirmasi permintaan Anda.</p></section>
-      <nav className="book-tabs" aria-label="Pilihan pelanggan">
-        <button className="button secondary" aria-pressed={tab === "order"} onClick={() => setTab("order")} type="button"><ShoppingBasket size={18}/>Pesan makanan</button>
-        <button className="button secondary" aria-pressed={tab === "booking"} onClick={() => setTab("booking")} type="button"><CalendarDays size={18}/>Booking meja</button>
-        <button className="button secondary" aria-pressed={tab === "status"} onClick={() => setTab("status")} type="button">Cek status</button>
-        <Refresh action={view.refresh}/>
-      </nav>
+      <div className="shop-content-heading"><div><p className="eyebrow">{view.data.name}</p><h2>{tab === "order" ? "Sajian untuk setiap selera." : tab === "booking" ? "Satu meja untuk Anda." : "Kabar dari dapur."}</h2></div><Refresh action={view.refresh}/></div>
       {tab === "order" && <>
         <BasketJump state={cart}/>
         <div className="catalog-layout">
@@ -72,8 +96,10 @@ export function Storefront({ slug, reference }: { slug: string; reference?: stri
         </TaskForm>
       </section>}
       {tab === "status" && <Status endpoint={endpoint} refValue={ref} setRef={setRef} sent={sent}/>}
-    </> : <Loading error={view.error} retry={view.refresh}/>}
-    <footer><span>PaonPlan · Tahu berapa porsi sebelum mulai masak.</span><span>Jadwal mengikuti WITA</span></footer>
+      </div>
+    </> : <div className="shop-content"><Loading error={view.error} retry={view.refresh}/></div>}
+    <footer className="shop-footer"><div><strong>PaonPlan</strong><p>Tahu berapa porsi sebelum mulai masak.</p></div>
+      <span>Jadwal pengambilan & booking mengikuti WITA</span><Link href="/usaha">Panel Admin & Kasir <ArrowRight size={16}/></Link></footer>
   </main>;
 }
 

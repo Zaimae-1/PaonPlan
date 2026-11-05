@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import "./usahastyles.css";
+import "./menu-design.css";
 
 export const metadata: Metadata = {
   title: { default: "PaonPlan | Rencana porsi warung", template: "%s | PaonPlan" },

@@ -34,6 +34,16 @@ Buka [Ruang usaha](http://127.0.0.1:3000/usaha) dan [Pelanggan demo](http://127.
 
 Semua data dalam warung berlabel **Data contoh** bersifat fiktif. Gunakan dua profil atau sesi browser terpisah untuk Admin dan Kasir. Pelanggan membuka halaman publik tanpa akun.
 
+## Tampilan menu dan ikon sementara
+
+Halaman pelanggan menggunakan header gelap, latar krem, aksen terakota, kartu menu, dan kategori yang terinspirasi dari [referensi restoran](https://restoran.ade-setiawan.my.id/). Katalog kasir dan keranjang menggunakan ikon yang sama. Beranda Admin tetap membawa desain **Besok masak berapa?**.
+
+Menu demo mencakup Ayam Betutu, Sate Lilit, Nasi Jinggo, Nasi Campur Bali, Tipat Cantok, Jukut Ares, Loloh Cemcem, dan Kopi Kintamani. Referensi nama kuliner berasal dari [Indonesia Travel tentang kuliner Bali](https://www.indonesia.travel/id/id/destination/bali-nusa-tenggara/bali), [panduan kuliner dan Loloh Cemcem](https://www.indonesia.travel/id/id/travel-ideas/gastronomy/10-iconic-cuisine-s-that-you-must-try-on-your-next-visit-to-bali), serta [Kopi Kintamani](https://www.indonesia.travel/id/id/travel-ideas/gastronomy/kopi-indonesia). Harga, porsi, dan stok awal merupakan data fiktif.
+
+`npm run db:demo` menambahkan pilihan demo yang belum ada ketika dijalankan ulang. Harga, stok, dan catatan menu yang sudah ada dipertahankan. Daftar contoh tersimpan di `src/lib/demo-menus.ts`.
+
+Ikon SVG sementara tersedia di `src/components/operations/menu-art.tsx`. Untuk memakai PNG nanti, simpan berkas di `public/menu/`, lalu isi `menuImages` berdasarkan nama menu huruf kecil. Contohnya `"ayam betutu": "/menu/ayam-betutu.png"`. Gambar yang sama akan muncul pada katalog, keranjang, dan daftar menu Admin. Nama, harga, dan stok tetap dibaca dari database.
+
 ## Memasang warung sendiri dan deployment
 
 Siapkan PostgreSQL bersama, lalu atur `DATABASE_URL` di server. Isi `OWNER_EMAIL`, `OWNER_PASSWORD` (minimal 12 karakter), `SHOP_NAME`, dan `SHOP_SLUG` untuk membuat warung serta akun pemilik.
@@ -146,6 +156,7 @@ Bukti dari browser tersedia untuk Admin, Kasir, Rencana Porsi, Tutup Hari, dan p
 | Rencana Porsi bersama | [Screenshot](output/playwright/rencana-usaha.png) |
 | Tutup Hari | [Screenshot](output/playwright/tutup-hari.png) |
 | Pelanggan desktop | [Screenshot](output/playwright/pelanggan-desktop.png) |
+| Katalog pelanggan | [Screenshot](output/playwright/menu-pelanggan.png) |
 | Pelanggan 360 px | [Screenshot](output/playwright/pelanggan-360.png) |
 | Laporan banyak transaksi fiktif | [PDF](output/pdf/laporan-verifikasi.pdf) |
 | Pratinjau struk 58 mm | [PDF](output/pdf/struk-58mm.pdf) |

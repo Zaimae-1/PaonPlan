@@ -6,6 +6,7 @@ import { rupiah, type Ingredient, type MenuItem, type Recipe, type Restock } fro
 import { api, Check, Input, Loading, num, on, OpHeading, optionalNum, Refresh, request, Select, showDate, str, Supplies, TaskForm,
   useView, type BaseView, type Change, type Values } from "./shared";
 import { MenuSelect } from "./planning";
+import { MenuArt } from "./menu-art";
 
 type StockView = BaseView & {
   menus: MenuItem[]; ingredients: Ingredient[]; recipes: Recipe[];
@@ -37,11 +38,11 @@ export function Stock() {
       {tab === "menu" && <div className="ops-grid">
         <section className="panel ops-list"><div className="ops-panel-heading"><h2>Menu warung</h2><p>Harga rupiah per porsi dan ketersediaan bersama.</p></div>
           {view.data.menus.map((menu) => <article className="ops-row" key={menu.id}>
-            <div><h3>{menu.name}</h3><p>{rupiah(menu.price)} · {menu.category}</p>
+            <div className="basket-menu"><MenuArt name={menu.name} category={menu.category} compact/><div><h3>{menu.name}</h3><p>{rupiah(menu.price)} · {menu.category}</p>
               <span className={menu.stock <= 5 ? "pill stockout-tag" : "pill forecast-tag"}>{number(menu.stock)} porsi tersedia</span>
               {!menu.active && <span className="pill plain-tag">Dinonaktifkan</span>}
               {!menu.public && <span className="pill plain-tag">Disembunyikan dari pelanggan</span>}
-            </div>
+            </div></div>
             <details className="ops-disclosure"><summary>Ubah menu</summary><MenuForm menu={menu} refresh={view.refresh}/></details>
           </article>)}
           <details className="ops-disclosure"><summary>Tambah menu</summary><MenuForm refresh={view.refresh}/></details>

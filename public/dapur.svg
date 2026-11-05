@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 455 290" fill="none">
+<defs><pattern id="dots" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r=".8" fill="#75572c" opacity=".25"/></pattern></defs>
+<circle cx="259" cy="152" r="119" fill="#f4dfac"/>
+<circle cx="259" cy="152" r="108" stroke="#9d7849" stroke-opacity=".35" stroke-dasharray="3 6"/>
+<path d="M83 215c91-19 220-18 338 3M98 230c99-11 194-10 289 1" stroke="#785b36" stroke-width="1.2" opacity=".26"/>
+<ellipse cx="241" cy="229" rx="112" ry="15" fill="#b4894e" opacity=".2"/>
+<path d="M312 142 371 68q9-10 15-4 6 5-2 14l-60 75" fill="#d99b58" stroke="#344b35" stroke-width="2.5"/>
+<path d="M319 146 377 75" stroke="#f8d597" stroke-width="2"/>
+<path d="M141 144c-7-12 0-18 14-17 3-14 18-19 31-13 8-19 28-23 45-12 13-15 32-12 43 1 20-10 34 0 37 16 18-1 27 9 23 23" fill="#f8ecd0" stroke="#344b35" stroke-width="2.5"/>
+<path d="M166 128l6-3m21-1 8-4m16 7 5-4m19-10 4 5m32 6 6-4m20 12 5-4m-101-18 7-4m46 19 5 4" stroke="#9f794c" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M180 145q10-28 37-8-18 13-37 8Zm38-5q12-23 31-3-11 12-31 3Zm56-1q5-20 26-13 2 15-26 13Z" fill="#67804e" stroke="#344b35" stroke-width="1.8"/>
+<path d="M127 148q109-27 221 0c-7 35-32 70-64 78l-92 1c-33-9-57-40-65-79Z" fill="#477156" stroke="#294535" stroke-width="3"/>
+<path d="M133 162c17 32 31 48 64 55l87-2c27-7 42-24 56-54" fill="url(#dots)"/>
+<path d="M134 156q102 26 207 0M145 181q94 30 185-1m-174 16q82 28 160-1" stroke="#e0ce92" stroke-width="1.6" opacity=".8"/>
+<path d="M201 222h74l-7 12h-60Z" fill="#314e39" stroke="#294535" stroke-width="2"/>
+<path d="M218 79c-19-20 18-21 5-44m21 45c-11-11 16-18 13-32m16 32c-4-8 8-12 11-19" stroke="#9a6c3f" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M76 171q-16-28-34-28 2 22 34 28Zm5 11q-5-30 12-46 11 21-12 46Zm-1 2q-20-11-34 0 11 10 34 0Zm-8-20q14 15 19 37" fill="#789261" stroke="#416148" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M358 195q14-23 37-22-5 17-37 22Zm-8 12q22-14 41-3-14 12-41 3Zm0 0 34-29" fill="#879764" stroke="#416148" stroke-width="1.7" stroke-linecap="round"/>
+<g stroke="#aa693f" stroke-width="2" stroke-linecap="round"><path d="M103 91v18m-9-9h18m273 14v16m-8-8h16M147 59v10m-5-5h10"/><circle cx="75" cy="125" r="2"/><circle cx="399" cy="146" r="2"/><circle cx="330" cy="41" r="2"/></g>
+</svg>
